@@ -1,91 +1,141 @@
 import { useState } from 'react'
-// Imports the 'useState' hook from React, which allows us to remember what the user types (state).
+import { useSpring, animated } from '@react-spring/web'
 
-export default function AuthPage() {
-// Defines the main functional component named 'AuthPage' that we can use in other parts of the app.
+interface AuthPageProps {
+    onLoginSuccess: () => void
+}
 
+export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     const [username, setUsername] = useState('')
-    // Creates a memory slot named 'username'. 'setUsername' is the tool to update it. It starts empty ('').
-
     const [password, setPassword] = useState('')
-    // Creates a memory slot named 'password'. 'setPassword' is the tool to update it. It starts empty.
 
+    // 1. Animation Configuration
+    const fadeIn = useSpring({
+        from: { opacity: 0, transform: 'translateY(-50px)' },
+        to: { opacity: 1, transform: 'translateY(0px)' },
+        config: { tension: 200, friction: 20 }
+    })
+
+    // 2. Login Logic
     const handleLogin = async () => {
-        // Defines a function that runs when the button is clicked. 'async' means it will wait for internet requests.
-
         console.log("Attempting login for:", username)
-        // Prints a message to the browser's developer console for debugging purposes.
-
         try {
-            // Starts a "safe zone". If anything crashes inside here, it jumps to the 'catch' block instead of freezing the app.
-
             const response = await fetch('http://localhost:8080/api/auth/login', {
-                // Sends a request to your Java backend. 'await' pauses the code here until the server replies.
-
                 method: 'POST',
-                // Tells the server we are SENDING data (creating/posting), not just reading it.
-
                 headers: { 'Content-Type': 'application/json' },
-                // Tells the server: "Hey, I am sending you JSON data, so please parse it as JSON."
-
                 body: JSON.stringify({ username, password })
-                // Takes your JavaScript variables (username, password) and converts them into a text string format that travels over the internet.
             })
-
             const result = await response.text()
-            // Waits for the server's reply (e.g., "Login Success!") and converts it into readable text.
 
-            alert("Server says: " + result)
-            // Shows a browser popup window with the message received from the server.
+            if (result === "Login Success!") {
+                // Success: Tell the parent App to switch pages
+                onLoginSuccess()
+            } else {
+                // Failure: Show the error message
+                alert("Server says: " + result)
+            }
 
         } catch (error) {
-            // This block runs only if the 'try' block fails (e.g., the server is down).
-
             console.error("Error:", error)
-            // Prints the specific error details to the console so you can fix it.
-
-            alert("Connection Failed")
-            // Tells the user something went wrong.
+            alert("Connection Failed - Is the Java Backend running?")
         }
     }
 
     return (
-        // The part below is the actual HTML (JSX) that gets drawn on the screen.
+        <div style={styles.pageContainer}>
+            <animated.div style={{ ...styles.card, ...fadeIn }}>
 
-        <div style={{ padding: '50px', textAlign: 'center' }}>
-            {/* A container box with 50px of internal spacing, with all text centered. */}
+                {/* Title uses the Fancy Hegarty Font (inherited from pageContainer) */}
+                <h1 style={styles.title}>Welcome Back</h1>
 
-            <h1>SmartCity Login</h1>
-            {/* The main title header. */}
+                {/* Subtitle forces Arial Font */}
+                <p style={styles.subtitle}>SmartCity Control Panel</p>
 
-            <input
-                type="text"
-                placeholder="Username"
-                // A text box where the user types their name. "Username" is the gray hint text.
+                <input
+                    type="text"
+                    placeholder="Username"
+                    onChange={(e) => setUsername(e.target.value)}
+                    style={styles.input}
+                />
 
-                onChange={(e) => setUsername(e.target.value)}
-                // When the user types, take the value (e.target.value) and save it into our 'username' memory slot.
+                <input
+                    type="password"
+                    placeholder="Password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={styles.input}
+                />
 
-                style={{ display: 'block', margin: '10px auto', padding: '10px' }}
-                // CSS Styling: Make it its own line (block), center it (margin auto), and make it comfortable (padding).
-            />
+                <button onClick={handleLogin} style={styles.button}>
+                    Login Account
+                </button>
 
-            <input
-                type="password"
-                placeholder="Password"
-                // A text box for passwords. It hides the characters (shows dots instead of letters).
-
-                onChange={(e) => setPassword(e.target.value)}
-                // When the user types, save the value into the 'password' memory slot.
-
-                style={{ display: 'block', margin: '10px auto', padding: '10px' }}
-                // Same styling as above to keep them aligned.
-            />
-
-            <button onClick={handleLogin} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-                {/* A clickable button. When clicked, it runs the 'handleLogin' function we wrote above. */}
-                Login
-            </button>
+            </animated.div>
         </div>
     )
+}
+
+// 3. Styles Object
+const styles = {
+    pageContainer: {
+        position: 'fixed' as const,
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        background: '#f0f2f5',
+        // Sets the DEFAULT font to Hegarty
+        fontFamily: '"BBH Hegarty", Arial, sans-serif',
+    },
+
+    card: {
+        background: 'white',
+        padding: '40px',
+        borderRadius: '12px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+        width: '350px',
+        textAlign: 'center' as const
+    },
+
+    title: {
+        margin: '0 0 10px 0',
+        color: '#333'
+    },
+
+    subtitle: {
+        margin: '0 0 30px 0',
+        color: '#666',
+        fontSize: '0.9rem',
+        // OVERRIDE: Forces this specific text to be Arial
+        fontFamily: 'Arial, sans-serif',
+        fontWeight: 'bold'
+    },
+
+    input: {
+        width: '100%',
+        padding: '12px',
+        marginBottom: '15px',
+        borderRadius: '6px',
+        border: '1px solid #ddd',
+        boxSizing: 'border-box' as const,
+        fontSize: '1rem',
+        fontFamily: 'Arial, sans-serif' // Readable typing
+    },
+
+    button: {
+        width: '100%',
+        padding: '12px',
+        background: '#007bff',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        fontSize: '1rem',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontFamily: 'Arial, sans-serif' // Readable button text
+    }
 }
