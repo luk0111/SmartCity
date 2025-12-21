@@ -1,0 +1,20 @@
+🏙️ SmartCity
+SmartCity is a modern full-stack application designed to help users discover essential services—from hotels to clinics—in major metropolitan areas. It features a hybrid review system that aggregates real-time data from the Google Places API alongside a custom, internal user review platform.
+
+🚀 Tech Stack
+Backend: Java 25 (Spring Boot 3.x), Spring Security (JWT), Spring Data JPA.
+
+Frontend: React (Vite + TypeScript), React-Spring (Physics-based animations).
+
+Database: PostgreSQL 18.
+
+Integration: Google Places API (Photos & Reviews).
+
+✨ Key Features
+City & Service Discovery: Browse supported cities and filter venues by category (Hotels, Restaurants, Clinics).
+
+Hybrid Data Layer: Seamlessly merges static database records with live data (photos/ratings) from Google.
+
+User System: Secure authentication allowing users to write their own custom reviews and rate locations.
+
+Fluid UI: High-performance, physics-based animations for a premium user experience.
