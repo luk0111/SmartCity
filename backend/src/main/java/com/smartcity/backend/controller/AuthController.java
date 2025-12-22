@@ -31,4 +31,29 @@ public class AuthController {
             return "Wrong password!";
         }
     }
+
+    @PostMapping ("/signup")
+    public String signup(@RequestBody Map<String, String> signupData) {
+        // i want to move to the sign up page different from the Auth.tsx
+        // create the buttons
+        // get the data
+        // send the data to the backend
+        // register the user into the database
+        // after successfully checking for existing username & email criteria
+
+        String username = signupData.get("username");
+        String password = signupData.get("password");
+
+        User existingUser = userRepository.findByUsername(username);
+        if (existingUser != null) {
+            return "Username already taken!";
+        }
+
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+        userRepository.save(newUser);
+
+        return "Signup Success!";
+    }
 }

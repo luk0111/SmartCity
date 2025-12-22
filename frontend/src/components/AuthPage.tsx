@@ -3,10 +3,10 @@ import { useSpring, useTransition, animated } from '@react-spring/web'
 
 interface AuthPageProps {
     onLoginSuccess: () => void
-    onSignupSuccess: () => void
+    onSignupClick: () => void
 }
 
-export default function AuthPage({ onLoginSuccess, onSignupSuccess }: AuthPageProps) {
+export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProps) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -63,7 +63,7 @@ export default function AuthPage({ onLoginSuccess, onSignupSuccess }: AuthPagePr
             const result = await response.text()
 
             if (result === "Signup Success!") {
-                onSignupSuccess()
+                onSignupClick()
             } else {
                 setError(result)
             }

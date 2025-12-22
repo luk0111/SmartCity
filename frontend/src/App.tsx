@@ -1,18 +1,29 @@
 import { useState } from 'react'
 import AuthPage from './components/AuthPage'
 import MainMenu from './components/MainMenu'
+import SignUp from './components/Signup'
+
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [currentView, setCurrentView] = useState('login')
 
     return (
         <div>
-            {/* 2. The Switch Logic */}
-            {isLoggedIn ? (
+            {currentView === 'main' && (
                 <MainMenu />
-            ) : (
-                // CRITICAL: We must pass this function so AuthPage can call it!
-                <AuthPage onLoginSuccess={() => setIsLoggedIn(true)} />
+            )}
+
+            {currentView === 'login' && (
+                <AuthPage
+                    onLoginSuccess={() => setCurrentView('main')}
+                    onSignupClick={() => setCurrentView('signup')}
+                />
+            )}
+
+            {currentView === 'signup' && (
+                <SignUp
+                    onBackToLogin={() => setCurrentView('login')}
+                />
             )}
         </div>
     )
