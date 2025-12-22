@@ -3,14 +3,15 @@ import { useSpring, useTransition, animated } from '@react-spring/web'
 
 interface AuthPageProps {
     onLoginSuccess: () => void
+    onSignupSuccess: () => void
 }
 
-export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
+export default function AuthPage({ onLoginSuccess, onSignupSuccess }: AuthPageProps) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
 
-    // Main Card Animation
+    // Main Auth Animation
     const fadeIn = useSpring({
         from: { opacity: 0, transform: 'translateY(-50px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
@@ -49,6 +50,30 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         }
     }
 
+    const handleSignup = async () => {
+        console.log("Attempting signup for:", username)
+        setError('')
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            })
+            const result = await response.text()
+
+            if (result === "Signup Success!") {
+                onSignupSuccess()
+            } else {
+                setError(result)
+            }
+        }
+        catch (err) {
+            console.error("Error:", err)
+            setError("Connection Failed - Is the Java Backend running?")
+        }
+    }
+
     return (
         <div style={styles.pageContainer}>
             <animated.div style={{ ...styles.card, ...fadeIn }}>
@@ -72,6 +97,16 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
 
                 {/* 3. The Animated Error Message */}
                 {/* We map over the transition to render the animated text */}
+
+
+                <button onClick={handleLogin} style={styles.button}>
+                    LogIn into your Account
+                </button>
+
+                <button onClick={handleSignup} style={{ ...styles.button, marginTop: '5px' }}>
+                    SignUp for an Account
+                </button>
+
                 {errorTransitions((style, item) =>
                     item ? (
                         <animated.p style={{ ...styles.errorText, ...style }}>
@@ -79,10 +114,6 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                         </animated.p>
                     ) : null
                 )}
-
-                <button onClick={handleLogin} style={styles.button}>
-                    Login Account
-                </button>
 
             </animated.div>
         </div>
@@ -127,7 +158,7 @@ const styles = {
 
         // Positioning (Anchored to the card, so button doesn't move)
         position: 'absolute' as const,
-        bottom: '110px',
+        bottom: '85px',
         left: '0',
         right: '0',
         textAlign: 'center' as const,
