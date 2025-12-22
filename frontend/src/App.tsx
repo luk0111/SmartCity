@@ -3,7 +3,6 @@ import AuthPage from './components/AuthPage'
 import MainMenu from './components/MainMenu'
 
 function App() {
-    // 1. State: Are we logged in? (Starts false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     return (
