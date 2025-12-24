@@ -1,34 +1,36 @@
 package com.smartcity.backend.model;
-// Defines which folder (package) this file belongs to, keeping your project organized.
 
 import jakarta.persistence.*;
-// Imports the JPA tools (Java Persistence API) needed to talk to databases.
-
-import lombok.Data;
-// Imports 'Lombok', a tool that writes code for us (like Getters and Setters) automatically.
 
 @Entity
-// Tells Spring: "This class represents a real table in the database."
-
 @Table(name = "users")
-// Tells Spring: "The table in the database is specifically named 'users'."
-
-@Data
-// Tells Lombok: "Please automatically generate getUsername(), setUsername(), toString(), etc. for me."
-
 public class User {
-// Starts the class definition.
 
     @Id
-    // Tells Spring: "This field is the Primary Key (the unique ID for every row)."
-
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // Tells Spring: "Don't ask me for an ID. Let the Database auto-increment it (1, 2, 3...) automatically."
     private Long id;
 
+    @Column(unique = true)
     private String username;
-    // A standard text field to store the user's name.
 
     private String password;
-    // A standard text field to store the password.
+
+    private String email;
+    private String gender;
+
+    // --- GETTERS AND SETTERS ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 }

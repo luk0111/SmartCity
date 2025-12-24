@@ -1,29 +1,31 @@
 import { useState } from 'react'
 import AuthPage from './components/AuthPage'
-import MainMenu from './components/MainMenu'
 import SignUp from './components/Signup'
-
+import MainMenu from './components/MainMenu'
 
 function App() {
-    const [currentView, setCurrentView] = useState('login')
+    // State to track which page is active: 'login', 'signup', or 'menu'
+    const [currentPage, setCurrentPage] = useState<'login' | 'signup' | 'menu'>('login')
 
     return (
         <div>
-            {currentView === 'main' && (
-                <MainMenu />
-            )}
+            {/* LOGIC: Which component to show? */}
 
-            {currentView === 'login' && (
+            {currentPage === 'login' && (
                 <AuthPage
-                    onLoginSuccess={() => setCurrentView('main')}
-                    onSignupClick={() => setCurrentView('signup')}
+                    onLoginSuccess={() => setCurrentPage('menu')}
+                    onSignupClick={() => setCurrentPage('signup')}
                 />
             )}
 
-            {currentView === 'signup' && (
+            {currentPage === 'signup' && (
                 <SignUp
-                    onBackToLogin={() => setCurrentView('login')}
+                    onBackToLogin={() => setCurrentPage('login')}
                 />
+            )}
+
+            {currentPage === 'menu' && (
+                <MainMenu />
             )}
         </div>
     )
