@@ -12,7 +12,7 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
 
-    // 1. Card Animation (Drops down from top)
+    //card animation
     const fadeIn = useSpring({
         from: { opacity: 0, transform: 'translateY(-50px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
@@ -20,15 +20,15 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
         delay: 200 // Wait a split second before dropping
     })
 
-    // 2. Background Image Animation (Rises up from bottom)
+    //background image animation
     const cityRise = useSpring({
-        from: { transform: 'translateY(100%)' }, // Starts fully "under" the screen
-        to: { transform: 'translateY(0%)' },     // Moves to normal position
-        config: { tension: 30, friction: 20 },   // Very slow and heavy rise
-        delay: 100 // Starts after the card appears
+        from: { transform: 'translateY(100%)' },
+        to: { transform: 'translateY(0%)' },
+        config: { tension: 30, friction: 20 },
+        delay: 100
     })
 
-    // Error text animation
+    //error text animation
     const errorTransitions = useTransition(error, {
         from: { opacity: 0, transform: 'translateY(10px)' },
         enter: { opacity: 1, transform: 'translateY(0px)' },
@@ -37,7 +37,6 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
     })
 
     const handleLogin = async () => {
-        // ... (Keep your existing login logic exactly the same) ...
         console.log("Attempting login for:", username)
         setError('')
         try {
@@ -60,9 +59,6 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
 
     return (
         <div style={styles.pageContainer}>
-
-            {/* 3. NEW: The Rising City Image */}
-            {/* Replace this URL with your own city png! */}
             <animated.img
                 src={cityImage}
                 style={{ ...styles.cityImage, ...cityRise }}
@@ -102,26 +98,25 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
     )
 }
 
+//my styles
 const styles = {
     pageContainer: {
         position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
         display: 'flex', justifyContent: 'center', alignItems: 'center',
         background: '#f0f2f5', fontFamily: '"BBH Hegarty", Arial, sans-serif',
-        overflow: 'hidden' // Prevents scrollbars when image rises
+        overflow: 'hidden'
     },
 
-    // 4. Style for the City Image
     cityImage: {
         position: 'absolute' as const,
         bottom: 0,
         left: 0,
-        width: '100vw',  // Force full viewport width
-        height: '50vh',  // Fixed height (half the screen height)
+        width: '100vw',
+        height: '50vh',
 
 
         objectFit: 'cover' as const,
         objectPosition: 'bottom',
-        // ---------------------
 
         zIndex: 0,
         opacity: 0.87,
@@ -133,7 +128,7 @@ const styles = {
         borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
         width: '500px', height: '500px', display: 'flex', flexDirection: 'column' as const,
         justifyContent: 'center', textAlign: 'center' as const,
-        zIndex: 10 // In front of the city image
+        zIndex: 10 //placing the login card in front of my image
     },
 
     title: { margin: '0 0 10px 0', color: '#333' },

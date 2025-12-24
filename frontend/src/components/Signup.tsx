@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useSpring, useTransition, animated } from '@react-spring/web'
 
-// 1. IMPORT YOUR SECOND IMAGE HERE
 import signupImage from '../assets/signupbackground.jpg'
 
 interface SignupProps {
@@ -16,7 +15,7 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
     const [error, setError] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
 
-    // Card Animation (Comes from bottom for contrast)
+    //card animation
     const fadeIn = useSpring({
         from: { opacity: 0, transform: 'translateY(50px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
@@ -24,10 +23,10 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
         delay: 200
     })
 
-    // 2. NEW: Image Animation (Drops down from the sky)
+    //background image animation
     const skyDrop = useSpring({
-        from: { transform: 'translateY(-100%)' }, // Starts fully "above" the screen
-        to: { transform: 'translateY(0%)' },      // Moves to normal position
+        from: { transform: 'translateY(-100%)' },
+        to: { transform: 'translateY(0%)' },
         config: { tension: 30, friction: 20 },
         delay: 100
     })
@@ -71,8 +70,6 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
 
     return (
         <div style={styles.pageContainer}>
-
-            {/* 3. NEW: The Dropping Background Image */}
             <animated.img
                 src={signupImage}
                 style={{ ...styles.bgImage, ...skyDrop }}
@@ -102,6 +99,7 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
     )
 }
 
+//my styles
 const styles = {
     pageContainer: {
         position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
@@ -110,15 +108,14 @@ const styles = {
         overflow: 'hidden'
     },
 
-    // 4. Style for the Top Image
     bgImage: {
         position: 'absolute' as const,
-        top: 0, // Anchored to TOP
+        top: 0,
         left: 0,
         width: '100vw',
-        height: '50vh', // Half screen height
+        height: '50vh',
         objectFit: 'cover' as const,
-        objectPosition: 'top', // Focus on the top part of image
+        objectPosition: 'top',
         zIndex: 0,
         opacity: 0.87,
         pointerEvents: 'none' as const

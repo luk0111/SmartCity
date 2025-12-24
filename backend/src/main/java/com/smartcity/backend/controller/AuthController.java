@@ -36,7 +36,6 @@ public class AuthController {
     public String signup(@RequestBody Map<String, String> signupData) {
         String username = signupData.get("username");
         String password = signupData.get("password");
-        // 1. Get new data
         String email = signupData.get("email");
         String gender = signupData.get("gender");
 
@@ -48,7 +47,6 @@ public class AuthController {
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(password);
-        // 2. Save new data
         newUser.setEmail(email);
         newUser.setGender(gender);
 
