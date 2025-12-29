@@ -15,6 +15,15 @@ public class User {
 
     private String password;
 
+    private String verificationCode;
+    private boolean enabled = false;
+
+    public String getVerificationCode() { return verificationCode; }
+    public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
+
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
     private String email;
     private String gender;
 

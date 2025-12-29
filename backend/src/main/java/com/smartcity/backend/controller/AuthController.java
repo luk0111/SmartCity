@@ -15,23 +15,45 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public String login(@RequestBody Map<String, String> loginData) {
+    public Map<String, Object> login(@RequestBody Map<String, String> loginData) {
         String username = loginData.get("username");
         String password = loginData.get("password");
 
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsernameOrEmail(username, username);
 
         if (user == null) {
-            return "User not found!";
+            return Map.of(
+                    "status", "error",
+                    "message", "User not found!"
+            );
+        }
+
+        // Check if account is verified
+        if (!user.isEnabled()) {
+            return Map.of(
+                    "status", "error",
+                    "message", "Account not verified!",
+                    "suggestion", "Please check your email and click the verification link",
+                    "email", user.getEmail()
+            );
         }
 
         if (user.getPassword().equals(password)) {
-            return "Login Success!";
+            return Map.of(
+                    "status", "success",
+                    "message", "Login successful!",
+                    "username", user.getUsername(),
+                    "email", user.getEmail()
+            );
         } else {
-            return "Wrong password!";
+            return Map.of(
+                    "status", "error",
+                    "message", "Wrong password!"
+            );
         }
     }
-
+    @Autowired
+    private com.smartcity.backend.service.EmailService emailService;
     @PostMapping("/signup")
     public String signup(@RequestBody Map<String, String> signupData) {
         String username = signupData.get("username");
@@ -39,9 +61,12 @@ public class AuthController {
         String email = signupData.get("email");
         String gender = signupData.get("gender");
 
-        User existingUser = userRepository.findByUsername(username);
+        System.out.println("Signup attempt for: " + username + ", email: " + email); // DEBUG
+
+        User existingUser = userRepository.findByUsernameOrEmail(username, email);
         if (existingUser != null) {
-            return "Username already taken!";
+            System.out.println("User already exists: " + username); // DEBUG
+            return "Username or Email already taken!";
         }
 
         User newUser = new User();
@@ -50,8 +75,41 @@ public class AuthController {
         newUser.setEmail(email);
         newUser.setGender(gender);
 
-        userRepository.save(newUser);
+        String randomCode = java.util.UUID.randomUUID().toString();
+        newUser.setVerificationCode(randomCode);
+        newUser.setEnabled(false);
 
-        return "Signup Success!";
+        userRepository.save(newUser);
+        System.out.println("User saved with code: " + randomCode); // DEBUG
+
+        // Try-catch to see if email service is failing
+        try {
+            System.out.println("Attempting to send email to: " + email); // DEBUG
+            emailService.sendVerificationEmail(email, randomCode);
+            System.out.println("Email service called successfully"); // DEBUG
+        } catch (Exception e) {
+            System.err.println("Email sending failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "Signup Success! Please check your email to verify.";
+    }
+    @PostMapping("/verify")
+    public String verifyUser(@RequestBody Map<String, String> body) {
+        String code = body.get("code");
+
+        // Find user by their special code
+        // (Note: You might need to add findByVerificationCode to your Repository!)
+        User user = userRepository.findByVerificationCode(code);
+
+        if (user == null) {
+            return "Invalid Code";
+        }
+
+        user.setEnabled(true); // Turn them ON
+        user.setVerificationCode(null); // Clear the code (can't be used twice)
+        userRepository.save(user);
+
+        return "Verified!";
     }
 }

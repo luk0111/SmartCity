@@ -71,7 +71,7 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
 
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Username or Email"
                     onChange={(e) => setUsername(e.target.value)}
                     style={styles.input}
                 />

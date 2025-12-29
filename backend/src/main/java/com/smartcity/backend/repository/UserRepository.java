@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
     // This is "Magic". You don't write the code. Spring reads the name "findByUsername"
     // and automatically writes the SQL: "SELECT * FROM users WHERE username = ?"
+    User findByUsernameOrEmail(String username, String email);
+    User findByVerificationCode(String code);
 }
