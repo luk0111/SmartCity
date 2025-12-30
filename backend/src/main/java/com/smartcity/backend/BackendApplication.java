@@ -20,10 +20,10 @@ public class BackendApplication {
     public void checkEmailConfig() {
         System.out.println("\n=== EMAIL CONFIGURATION CHECK ===");
         if (mailSender == null) {
-            System.err.println("❌ JavaMailSender is NULL! Email configuration failed!");
+            System.err.println("JavaMailSender is NULL! Email configuration failed!");
             System.err.println("Check your application.properties and pom.xml dependencies");
         } else {
-            System.out.println("✅ JavaMailSender is configured and ready!");
+            System.out.println("JavaMailSender is configured and ready!");
             System.out.println("Class: " + mailSender.getClass().getName());
         }
         System.out.println("===================================\n");

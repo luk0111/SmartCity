@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useSpring, useTransition, animated } from '@react-spring/web'
-
 import signupImage from '../assets/signupbackground.jpg'
 
 interface SignupProps {
     onBackToLogin: () => void
 }
 
-export default function SignUp({ onBackToLogin }: SignupProps) {
+export default function Signup({ onBackToLogin }: SignupProps) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -15,7 +14,8 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
     const [error, setError] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
 
-    //card animation
+    const [isLoading, setIsLoading] = useState(false)
+
     const fadeIn = useSpring({
         from: { opacity: 0, transform: 'translateY(50px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
@@ -23,7 +23,6 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
         delay: 200
     })
 
-    //background image animation
     const skyDrop = useSpring({
         from: { transform: 'translateY(-100%)' },
         to: { transform: 'translateY(0%)' },
@@ -38,33 +37,41 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
         config: { tension: 220, friction: 20 }
     })
 
-    const handleSignup = async () => {
-        // ... (Keep existing logic) ...
+    const handleSignup = async (e: React.MouseEvent) => {
+
+        e.preventDefault()
+
         setError('')
         setSuccessMsg('')
+
         if (!username || !password || !email) {
             setError("Please fill in all fields")
             return
         }
+
+
+        setIsLoading(true)
+
         try {
             const response = await fetch('http://localhost:8080/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password, email, gender })
             })
+
             const result = await response.text()
 
-            if (result === "Signup Success!") {
-                setSuccessMsg("Account Created! Redirecting...")
-                setTimeout(() => {
-                    onBackToLogin()
-                }, 1500)
+            if (result.includes("Signup Success")) {
+                setSuccessMsg("Success! Please check your email to verify.")
             } else {
                 setError(result)
             }
         } catch (err) {
-            console.error("Error:", err)
-            setError("Connection Failed")
+            console.error("Signup Error:", err)
+            setError("Connection Failed - Check Backend Console")
+        } finally {
+
+            setIsLoading(false)
         }
     }
 
@@ -89,7 +96,19 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
                 </select>
                 <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} style={styles.input} />
 
-                <button onClick={handleSignup} style={styles.button}>Register Account</button>
+
+                <button
+                    onClick={handleSignup}
+                    disabled={isLoading} // Can't click twice
+                    style={{
+                        ...styles.button,
+                        background: isLoading ? '#ccc' : '#28a745', // Turn grey if loading
+                        cursor: isLoading ? 'not-allowed' : 'pointer'
+                    }}
+                >
+                    {isLoading ? "Creating Account..." : "Register Account"}
+                </button>
+
                 <button onClick={onBackToLogin} style={{ ...styles.secondaryButton, marginTop: '10px' }}>Back to Login</button>
 
                 {errorTransitions((style, item) => item ? <animated.p style={{ ...styles.errorText, ...style }}>{item}</animated.p> : null)}
@@ -99,7 +118,6 @@ export default function SignUp({ onBackToLogin }: SignupProps) {
     )
 }
 
-//my styles
 const styles = {
     pageContainer: {
         position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
@@ -107,29 +125,16 @@ const styles = {
         background: '#f0f2f5', fontFamily: '"BBH Hegarty", Arial, sans-serif',
         overflow: 'hidden'
     },
-
     bgImage: {
-        position: 'absolute' as const,
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '50vh',
-        objectFit: 'cover' as const,
-        objectPosition: 'top',
-        zIndex: 0,
-        opacity: 0.87,
-        pointerEvents: 'none' as const
+        position: 'absolute' as const, top: 0, left: 0, width: '100vw', height: '50vh',
+        objectFit: 'cover' as const, objectPosition: 'top', zIndex: 0, opacity: 0.87, pointerEvents: 'none' as const
     },
-
     card: {
         position: 'relative' as const, background: 'white', padding: '40px',
         borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-        width: '500px', height: '550px',
-        display: 'flex', flexDirection: 'column' as const,
-        justifyContent: 'center', textAlign: 'center' as const,
-        zIndex: 10
+        width: '500px', height: '550px', display: 'flex', flexDirection: 'column' as const,
+        justifyContent: 'center', textAlign: 'center' as const, zIndex: 10
     },
-
     title: { margin: '0 0 10px 0', color: '#333' },
     subtitle: { margin: '0 0 30px 0', color: '#666', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold' },
     errorText: {

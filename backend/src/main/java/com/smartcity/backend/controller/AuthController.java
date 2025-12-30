@@ -99,7 +99,7 @@ public class AuthController {
         String code = body.get("code");
 
         // Find user by their special code
-        // (Note: You might need to add findByVerificationCode to your Repository!)
+        // I might have to add a find by verificationCode method in UserRepository
         User user = userRepository.findByVerificationCode(code);
 
         if (user == null) {

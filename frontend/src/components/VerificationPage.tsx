@@ -1,31 +1,43 @@
 import { useState, useEffect } from 'react'
 import { useSpring, animated } from '@react-spring/web'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import cityImage from '../assets/authbackground.jpg'
+import skyImage from '../assets/signupbackground.jpg'
 
 interface VerificationPageProps {
+    code: string | null
     onVerificationComplete: () => void
 }
 
-export default function VerificationPage({ onVerificationComplete }: VerificationPageProps) {
-    const [searchParams] = useSearchParams()
-    const navigate = useNavigate()
+export default function VerificationPage({ code, onVerificationComplete }: VerificationPageProps) {
     const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
     const [message, setMessage] = useState('Verifying your account...')
 
-    const code = searchParams.get('code')
-
-    // Animation
     const fadeIn = useSpring({
-        from: { opacity: 0, transform: 'scale(0.95)' },
-        to: { opacity: 1, transform: 'scale(1)' },
-        config: { tension: 50, friction: 15 }
+        from: { opacity: 0, transform: 'translateY(50px)' },
+        to: { opacity: 1, transform: 'translateY(0px)' },
+        config: { tension: 50, friction: 15 },
+        delay: 200
+    })
+
+    const cityRise = useSpring({
+        from: { transform: 'translateY(100%)' },
+        to: { transform: 'translateY(0%)' },
+        config: { tension: 30, friction: 20 },
+        delay: 100
+    })
+
+    const skyDrop = useSpring({
+        from: { transform: 'translateY(-100%)' },
+        to: { transform: 'translateY(0%)' },
+        config: { tension: 30, friction: 20 },
+        delay: 100
     })
 
     useEffect(() => {
         const verifyAccount = async () => {
             if (!code) {
                 setStatus('error')
-                setMessage('Invalid verification link. No code provided.')
+                setMessage('Invalid link. No code found.')
                 return
             }
 
@@ -36,24 +48,22 @@ export default function VerificationPage({ onVerificationComplete }: Verificatio
                     body: JSON.stringify({ code })
                 })
 
-                const result = await response.json()
+                const textResult = await response.text()
 
-                if (response.ok && result.status === 'success') {
+                if (textResult === "Verified!") {
                     setStatus('success')
                     setMessage('Account verified successfully!')
-
-                    // Auto-redirect to login after 3 seconds
                     setTimeout(() => {
                         onVerificationComplete()
                     }, 3000)
                 } else {
                     setStatus('error')
-                    setMessage(result.message || 'Verification failed. Please try again.')
+                    setMessage(textResult)
                 }
             } catch (err) {
                 console.error('Verification error:', err)
                 setStatus('error')
-                setMessage('Connection error. Please check your internet and try again.')
+                setMessage('Connection error. Is the backend running?')
             }
         }
 
@@ -62,52 +72,59 @@ export default function VerificationPage({ onVerificationComplete }: Verificatio
 
     return (
         <div style={styles.pageContainer}>
+            <animated.img
+                src={skyImage}
+                style={{ ...styles.skyImage, ...skyDrop }}
+                alt="Sky Background"
+            />
+
+            <animated.img
+                src={cityImage}
+                style={{ ...styles.cityImage, ...cityRise }}
+                alt="City Skyline"
+            />
+
             <animated.div style={{ ...styles.card, ...fadeIn }}>
+
                 <div style={styles.iconContainer}>
-                    {status === 'verifying' && (
-                        <div style={styles.spinner}></div>
-                    )}
+                    {status === 'verifying' && <div style={styles.spinner}></div>}
+
+                    {/* BOLD SUCCESS TICK */}
                     {status === 'success' && (
-                        <div style={styles.successIcon}>✓</div>
+                        <div style={styles.successIcon}>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
                     )}
+
+                    {/* BOLD ERROR X */}
                     {status === 'error' && (
-                        <div style={styles.errorIcon}>✗</div>
+                        <div style={styles.errorIcon}>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
                     )}
                 </div>
 
                 <h1 style={styles.title}>
-                    {status === 'verifying' && 'Verifying Account'}
+                    {status === 'verifying' && 'Verifying...'}
                     {status === 'success' && 'Success!'}
-                    {status === 'error' && 'Verification Failed'}
+                    {status === 'error' && 'Failed'}
                 </h1>
 
                 <p style={styles.message}>{message}</p>
 
                 {status === 'success' && (
-                    <p style={styles.redirectText}>Redirecting to login page...</p>
+                    <p style={styles.redirectText}>Redirecting to login...</p>
                 )}
 
                 {status === 'error' && (
-                    <div style={styles.buttonContainer}>
-                        <button
-                            onClick={() => navigate('/login')}
-                            style={styles.button}
-                        >
-                            Go to Login
-                        </button>
-                        <button
-                            onClick={() => window.location.reload()}
-                            style={{ ...styles.button, background: 'transparent', color: '#666' }}
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                )}
-
-                {code && (
-                    <p style={styles.codeText}>
-                        Code: <span style={styles.code}>{code.substring(0, 20)}...</span>
-                    </p>
+                    <button onClick={onVerificationComplete} style={styles.button}>
+                        Back to Login
+                    </button>
                 )}
             </animated.div>
         </div>
@@ -116,108 +133,48 @@ export default function VerificationPage({ onVerificationComplete }: Verificatio
 
 const styles = {
     pageContainer: {
-        position: 'fixed' as const,
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        fontFamily: 'Arial, sans-serif'
+        position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+        background: '#f0f2f5', fontFamily: '"BBH Hegarty", Arial, sans-serif',
+        overflow: 'hidden'
+    },
+    skyImage: {
+        position: 'absolute' as const, top: 0, left: 0, width: '100vw', height: '50vh',
+        objectFit: 'cover' as const, objectPosition: 'top', zIndex: 0, opacity: 0.87, pointerEvents: 'none' as const
+    },
+    cityImage: {
+        position: 'absolute' as const, bottom: 0, left: 0, width: '100vw', height: '50vh',
+        objectFit: 'cover' as const, objectPosition: 'bottom', zIndex: 0, opacity: 0.87, pointerEvents: 'none' as const
     },
     card: {
-        background: 'white',
-        padding: '40px',
-        borderRadius: '12px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-        width: '500px',
-        textAlign: 'center' as const,
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center'
+        position: 'relative' as const, background: 'white', padding: '40px',
+        borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+        width: '400px',
+        textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center',
+        zIndex: 10
     },
-    iconContainer: {
-        marginBottom: '30px'
-    },
+    iconContainer: { marginBottom: '20px' },
     spinner: {
-        width: '60px',
-        height: '60px',
-        border: '5px solid #f3f3f3',
-        borderTop: '5px solid #007bff',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        margin: '0 auto'
+        width: '50px', height: '50px', border: '5px solid #f3f3f3',
+        borderTop: '5px solid #007bff', borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
     },
     successIcon: {
-        width: '60px',
-        height: '60px',
-        background: '#28a745',
-        color: 'white',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '30px',
-        fontWeight: 'bold',
-        margin: '0 auto'
+        width: '64px', height: '64px', background: '#28a745', color: 'white',
+        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 10px rgba(40, 167, 69, 0.3)'
     },
     errorIcon: {
-        width: '60px',
-        height: '60px',
-        background: '#dc3545',
-        color: 'white',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '30px',
-        fontWeight: 'bold',
-        margin: '0 auto'
+        width: '64px', height: '64px', background: '#dc3545', color: 'white',
+        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 10px rgba(220, 53, 69, 0.3)'
     },
-    title: {
-        margin: '0 0 15px 0',
-        color: '#333',
-        fontSize: '28px'
-    },
-    message: {
-        color: '#666',
-        fontSize: '16px',
-        lineHeight: '1.5',
-        marginBottom: '20px'
-    },
-    redirectText: {
-        color: '#888',
-        fontSize: '14px',
-        fontStyle: 'italic'
-    },
-    buttonContainer: {
-        display: 'flex',
-        gap: '10px',
-        marginTop: '20px'
-    },
+    title: { margin: '0 0 10px 0', color: '#333' },
+    message: { color: '#666', marginBottom: '20px', fontFamily: 'Arial, sans-serif' },
+    redirectText: { color: '#888', fontStyle: 'italic', fontSize: '14px' },
     button: {
-        padding: '12px 24px',
-        background: '#007bff',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        fontSize: '16px',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        minWidth: '120px'
-    },
-    codeText: {
-        marginTop: '30px',
-        color: '#888',
-        fontSize: '12px',
-        fontFamily: 'monospace'
-    },
-    code: {
-        backgroundColor: '#f5f5f5',
-        padding: '2px 6px',
-        borderRadius: '4px',
-        fontFamily: 'monospace'
+        padding: '12px 24px', background: '#007bff', color: 'white', border: 'none',
+        borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem',
+        fontFamily: 'Arial, sans-serif'
     }
 }
