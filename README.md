@@ -2,7 +2,7 @@
 SmartCity is a modern full-stack application designed to help users discover essential services—from hotels to clinics—in major metropolitan areas. It features a hybrid review system that aggregates real-time data from the Google Places API alongside a custom, internal user review platform.
 
 🚀 Tech Stack
-Backend: Java 25 (Spring Boot 3.x), Spring Security (JWT), Spring Data JPA.
+Backend: Java 21 (Spring Boot 3.x), Spring Security (JWT), Spring Data JPA.
 
 Frontend: React (Vite + TypeScript), React-Spring (Physics-based animations).
 
