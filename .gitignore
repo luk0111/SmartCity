@@ -26,6 +26,14 @@ backend/.mvn
 *.jar
 *.war
 
+# Ignore H2 Database files
+*.mv.db
+*.trace.db
+
+# Ignore the data folder (optional, but cleaner)
+/backend/data/
+/data/
+
 # Secrets (NEVER upload these)
 backend/src/main/resources/application-secret.properties
 backend/src/main/resources/application-dev.properties
