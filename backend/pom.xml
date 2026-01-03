@@ -17,7 +17,7 @@
     <description>backend</description>
 
     <properties>
-        <java.version>21</java.version>  <!-- CHANGED TO 21 -->
+        <java.version>21</java.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -34,7 +34,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Mail dependency with exclusion -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -46,7 +45,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Add Jakarta Mail explicitly -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
@@ -54,8 +52,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -81,7 +79,6 @@
 
     <build>
         <plugins>
-            <!-- Updated compiler plugin for Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
