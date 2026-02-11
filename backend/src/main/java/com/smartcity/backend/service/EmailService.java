@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -22,6 +23,7 @@ public class EmailService {
     @Value("${spring.application.name:SmartCity}")
     private String appName;
 
+    @Async
     public void sendVerificationEmail(String toEmail, String code) {
         System.out.println("\n📧 === ATTEMPTING TO SEND VERIFICATION EMAIL ===");
         System.out.println("To: " + toEmail);
@@ -44,7 +46,6 @@ public class EmailService {
             System.err.println("❌ Email sending failed!");
             System.err.println("Error: " + e.getMessage());
 
-            // Provide helpful debug info
             printDebugInfo();
         }
     }

@@ -3,7 +3,7 @@ import { useSpring, useTransition, animated } from '@react-spring/web'
 import cityImage from '../assets/authbackground.jpg'
 
 interface AuthPageProps {
-    onLoginSuccess: () => void
+    onLoginSuccess: (user: { username: string; email: string }) => void // Update type
     onSignupClick: () => void
 }
 
@@ -45,7 +45,10 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
             const result = await response.json()
 
             if (result.status === "success") {
-                onLoginSuccess()
+                onLoginSuccess({
+                    username: result.username,
+                    email: result.email
+                })
             } else {
                 setError(result.message)
             }

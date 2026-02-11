@@ -4,12 +4,19 @@ import SignUp from './components/Signup'
 import MainMenu from './components/MainMenu'
 import VerificationPage from './components/VerificationPage'
 
+export interface UserData {
+    username: string;
+    email: string;
+}
+
 function App() {
     const [currentPage, setCurrentPage] = useState<'login' | 'signup' | 'menu' | 'verify'>('login')
     const [verificationCode, setVerificationCode] = useState<string | null>(null)
 
+    // NEW: Store the current user
+    const [currentUser, setCurrentUser] = useState<UserData | null>(null)
+
     useEffect(() => {
-        // 1. Manually check if the user is visiting the verification link
         const path = window.location.pathname
         if (path === '/verify') {
             const params = new URLSearchParams(window.location.search)
@@ -22,8 +29,17 @@ function App() {
     }, [])
 
     const handleVerificationComplete = () => {
-        // Clean the URL bar so it looks nice
         window.history.pushState({}, "", "/")
+        setCurrentPage('login')
+    }
+
+    const handleLoginSuccess = (user: UserData) => {
+        setCurrentUser(user)
+        setCurrentPage('menu')
+    }
+
+    const handleLogout = () => {
+        setCurrentUser(null)
         setCurrentPage('login')
     }
 
@@ -31,7 +47,7 @@ function App() {
         <div>
             {currentPage === 'login' && (
                 <AuthPage
-                    onLoginSuccess={() => setCurrentPage('menu')}
+                    onLoginSuccess={handleLoginSuccess} // Pass the new handler
                     onSignupClick={() => setCurrentPage('signup')}
                 />
             )}
@@ -49,8 +65,9 @@ function App() {
                 />
             )}
 
-            {currentPage === 'menu' && (
-                <MainMenu />
+            {currentPage === 'menu' && currentUser && (
+                // Pass user data to the dashboard
+                <MainMenu user={currentUser} onLogout={handleLogout} />
             )}
         </div>
     )
