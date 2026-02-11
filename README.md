@@ -6,7 +6,15 @@ Backend: Java 21 (Spring Boot 3.x), Spring Security (JWT), Spring Data JPA.
 
 Frontend: React (Vite + TypeScript), React-Spring (Physics-based animations).
 
-Database: PostgreSQL 18.
+## Database Setup
+The project uses H2 in **File-Based Mode** with Auto-Server enabled. This allows you to view the database via IntelliJ or DBeaver while the app is running.
+
+- **JDBC URL:** `jdbc:h2:file:./data/smartcity;AUTO_SERVER=TRUE`
+- **User:** `sa`
+- **Password:** `password`
+- **H2 Console:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+
+**Note:** The database files are stored in `backend/data/` and are ignored by Git. When you clone this repo, you will start with a fresh, empty database.
 
 Integration: Google Places API (Photos & Reviews).
 
