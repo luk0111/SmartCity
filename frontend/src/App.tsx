@@ -13,7 +13,6 @@ function App() {
     const [currentPage, setCurrentPage] = useState<'login' | 'signup' | 'menu' | 'verify'>('login')
     const [verificationCode, setVerificationCode] = useState<string | null>(null)
 
-    // NEW: Store the current user
     const [currentUser, setCurrentUser] = useState<UserData | null>(null)
 
     useEffect(() => {
@@ -47,7 +46,7 @@ function App() {
         <div>
             {currentPage === 'login' && (
                 <AuthPage
-                    onLoginSuccess={handleLoginSuccess} // Pass the new handler
+                    onLoginSuccess={handleLoginSuccess}
                     onSignupClick={() => setCurrentPage('signup')}
                 />
             )}
@@ -66,7 +65,6 @@ function App() {
             )}
 
             {currentPage === 'menu' && currentUser && (
-                // Pass user data to the dashboard
                 <MainMenu user={currentUser} onLogout={handleLogout} />
             )}
         </div>
