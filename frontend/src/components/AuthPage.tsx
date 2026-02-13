@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useSpring, useTransition, animated } from '@react-spring/web'
 import cityImage from '../assets/authbackground.jpg'
+import { type UserData } from '../App'
 
 interface AuthPageProps {
-    onLoginSuccess: (user: { username: string; email: string }) => void
+    onLoginSuccess: (user: UserData) => void
     onSignupClick: () => void
+    onForgotPasswordClick: () => void
 }
 
-export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProps) {
+export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswordClick }: AuthPageProps) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -46,12 +48,13 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
 
             if (result.status === "success") {
                 // SAVE TOKEN AND USERNAME
-                localStorage.setItem("token", result.token)
+                localStorage.setItem("token", result.token || "dummy-token")
                 localStorage.setItem("username", result.username)
 
+                // Pass the user data back to App.tsx
                 onLoginSuccess({
                     username: result.username,
-                    email: result.email // Make sure your backend returns this!
+                    email: result.email
                 })
             } else {
                 setError(result.message)
@@ -85,6 +88,22 @@ export default function AuthPage({ onLoginSuccess, onSignupClick }: AuthPageProp
                     onChange={(e) => setPassword(e.target.value)}
                     style={styles.input}
                 />
+
+                <div style={{ textAlign: 'right', marginBottom: '15px' }}>
+    <span
+        onClick={onForgotPasswordClick}
+        style={{
+            color: '#007bff',
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            fontFamily: 'Arial, sans-serif',
+            fontWeight: 'bold'
+        }}
+    >
+        Forgot Password?
+    </span>
+                </div>
 
                 <button onClick={handleLogin} style={styles.button}>
                     Log In
@@ -132,7 +151,7 @@ const styles = {
     subtitle: { margin: '0 0 30px 0', color: '#666', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold' },
     errorText: {
         color: '#ff4d4f', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold',
-        position: 'absolute' as const, bottom: '84px', left: 0, right: 0, textAlign: 'center' as const, zIndex: 10
+        position: 'absolute' as const, bottom: '20px', left: 0, right: 0, textAlign: 'center' as const, zIndex: 10
     },
     input: {
         width: '100%', padding: '12px', marginBottom: '8px', borderRadius: '6px',

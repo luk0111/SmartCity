@@ -108,4 +108,45 @@ public class AuthController {
 
         return "Verified!";
     }
+
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            return Map.of("status", "error", "message", "If that email exists, a reset link has been sent.");
+        }
+
+        String token = java.util.UUID.randomUUID().toString();
+        user.setResetToken(token);
+        userRepository.save(user);
+
+        try {
+            emailService.sendPasswordResetEmail(email, token);
+            System.out.println("Password reset email sent to: " + email + " with token: " + token);
+        } catch (Exception e) {
+            System.err.println("Failed to send reset email: " + e.getMessage());
+            return Map.of("status", "error", "message", "Failed to send email. Check console.");
+        }
+
+        return Map.of("status", "success", "message", "If that email exists, a reset link has been sent.");
+    }
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        User user = userRepository.findByResetToken(token);
+
+        if (user == null) {
+            return Map.of("status", "error", "message", "Invalid or expired reset token.");
+        }
+
+        user.setPassword(newPassword);
+        user.setResetToken(null);
+        userRepository.save(user);
+
+        return Map.of("status", "success", "message", "Password successfully updated! You can now log in.");
+    }
 }

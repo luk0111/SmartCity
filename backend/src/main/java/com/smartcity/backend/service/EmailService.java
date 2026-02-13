@@ -43,7 +43,7 @@ public class EmailService {
             // sendHtmlEmail(toEmail, code);
 
         } catch (Exception e) {
-            System.err.println("❌ Email sending failed!");
+            System.err.println("Email sending failed!");
             System.err.println("Error: " + e.getMessage());
 
             printDebugInfo();
@@ -102,6 +102,42 @@ public class EmailService {
         System.out.println("✅ HTML email sent successfully!");
     }
 
+
+    @Async
+    public void sendPasswordResetEmail(String toEmail, String token) {
+        System.out.println("\n📧 === ATTEMPTING TO SEND PASSWORD RESET EMAIL ===");
+        System.out.println("To: " + toEmail);
+        System.out.println("Token: " + token);
+        System.out.println("From: " + fromEmail);
+
+        if (mailSender == null) {
+            System.err.println("❌ ERROR: JavaMailSender is null! Check your configuration.");
+            return;
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("SmartCity - Password Reset Request");
+            message.setText(
+                    "Hello,\n\n" +
+                            "You recently requested to reset your password for your SmartCity account.\n" +
+                            "Please click the link below to set a new password:\n\n" +
+                            "http://localhost:5173/reset-password?token=" + token + "\n\n" +
+                            "This link will expire soon. If you did not request a password reset, please ignore this email and your password will remain unchanged.\n\n" +
+                            "Best regards,\n" +
+                            "SmartCity Team"
+            );
+
+            mailSender.send(message);
+            System.out.println("✅ Password reset email sent successfully!");
+        } catch (Exception e) {
+            System.err.println("❌ Password reset email sending failed!");
+            System.err.println("Error: " + e.getMessage());
+            printDebugInfo();
+        }
+    }
     private void printDebugInfo() {
         System.out.println("\n=== DEBUG INFO ===");
         System.out.println("1. Check if spring.mail.username is correct in application.properties");
