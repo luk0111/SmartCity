@@ -25,6 +25,7 @@ public class AuthController {
     @Autowired
     private com.smartcity.backend.service.EmailService emailService;
 
+
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, String> loginData) {
         String username = loginData.get("username");
@@ -143,7 +144,7 @@ public class AuthController {
             return Map.of("status", "error", "message", "Invalid or expired reset token.");
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setResetToken(null);
         userRepository.save(user);
 
