@@ -17,7 +17,6 @@ export default function MainMenu({ user, onLogout }: MainMenuProps) {
             </p>
 
             <div style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                {/* Example placeholders for your future app */}
                 <div style={cardStyle}>🚦 Traffic Systems</div>
                 <div style={cardStyle}>⚡ Energy Consumption</div>
                 <div style={cardStyle}>📢 Public Services</div>
