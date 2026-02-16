@@ -129,8 +129,26 @@ const styles: Record<string, React.CSSProperties> = {
     },
     title: { margin: '0 0 8px 0', color: '#111', fontWeight: 600, fontSize: '2rem' },
     subtitle: { margin: '0 0 35px 0', color: '#555', fontSize: '0.95rem', letterSpacing: '0.5px' },
-    errorText: { color: '#ff3b30', fontSize: '0.85rem', fontWeight: 500, position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center' },
-    successText: { color: '#34c759', fontSize: '0.85rem', fontWeight: 500, position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center' },
+    errorText: {
+        color: '#ff3b30',
+        fontSize: '0.85rem',
+        fontWeight: 400, /* <-- Use 400 instead of 'normal' or 500 */
+        position: 'absolute',
+        bottom: '15px',
+        left: 0,
+        right: 0,
+        textAlign: 'center'
+    },
+    successText: {
+        color: '#34c759',
+        fontSize: '0.85rem',
+        fontWeight: 400, /* <-- Use 400 here too */
+        position: 'absolute',
+        bottom: '15px',
+        left: 0,
+        right: 0,
+        textAlign: 'center'
+    },
     input: {
         width: '100%', padding: '15px 16px', marginBottom: '15px', borderRadius: '8px',
         border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.6)',

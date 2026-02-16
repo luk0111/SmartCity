@@ -172,7 +172,8 @@ const styles: Record<string, React.CSSProperties> = {
     title: { margin: '0 0 8px 0', color: '#111', fontWeight: 600, fontSize: '2rem' },
     subtitle: { margin: '0 0 35px 0', color: '#555', fontSize: '0.95rem', letterSpacing: '0.5px' },
     messageText: {
-        fontSize: '0.85rem', fontWeight: 500,
+        fontSize: '0.85rem',
+        fontWeight: 'normal',
         position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center'
     },
     input: {
