@@ -13,7 +13,12 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://192.168.1.253:5173", "http://localhost:5173")
+                        .allowedOrigins(
+                                "http://26.133.65.127:5173",
+                                "http://localhost:5173",
+                                "http://localhost",       // Capacitor Android default
+                                "capacitor://localhost"   // Capacitor iOS default
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
             }
         };

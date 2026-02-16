@@ -53,7 +53,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://192.168.1.253:8080/api/auth/signup', {
+            const response = await fetch('http://26.133.65.127:8080/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password, email, gender })
