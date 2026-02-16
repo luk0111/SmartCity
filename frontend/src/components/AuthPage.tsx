@@ -14,17 +14,18 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
 
+    // Smoother, "floaty" animation (no bounce)
     const fadeIn = useSpring({
-        from: { opacity: 0, transform: 'translateY(-50px)' },
+        from: { opacity: 0, transform: 'translateY(40px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
-        config: { tension: 50, friction: 15 },
-        delay: 200
+        config: { mass: 1, tension: 90, friction: 30 },
+        delay: 300
     })
 
-    const cityRise = useSpring({
-        from: { transform: 'translateY(100%)' },
-        to: { transform: 'translateY(0%)' },
-        config: { tension: 30, friction: 20 },
+    const bgReveal = useSpring({
+        from: { opacity: 0, transform: 'scale(1.05)' },
+        to: { opacity: 1, transform: 'scale(1)' },
+        config: { mass: 1, tension: 50, friction: 40 },
         delay: 100
     })
 
@@ -32,7 +33,7 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
         from: { opacity: 0, transform: 'translateY(10px)' },
         enter: { opacity: 1, transform: 'translateY(0px)' },
         leave: { opacity: 0 },
-        config: { tension: 220, friction: 20 }
+        config: { tension: 200, friction: 20 }
     })
 
     const handleLogin = async () => {
@@ -47,15 +48,9 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
             const result = await response.json()
 
             if (result.status === "success") {
-                // SAVE TOKEN AND USERNAME
                 localStorage.setItem("token", result.token || "dummy-token")
                 localStorage.setItem("username", result.username)
-
-                // Pass the user data back to App.tsx
-                onLoginSuccess({
-                    username: result.username,
-                    email: result.email
-                })
+                onLoginSuccess({ username: result.username, email: result.email })
             } else {
                 setError(result.message)
             }
@@ -66,11 +61,10 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
 
     return (
         <div style={styles.pageContainer}>
-            <animated.img
-                src={cityImage}
-                style={{ ...styles.cityImage, ...cityRise }}
-                alt="City Skyline"
-            />
+            <animated.div style={{ ...styles.bgContainer, ...bgReveal }}>
+                <img src={cityImage} style={styles.bgImage} alt="Background" />
+                <div style={styles.overlay} />
+            </animated.div>
 
             <animated.div style={{ ...styles.card, ...fadeIn }}>
                 <h1 style={styles.title}>Welcome Back</h1>
@@ -89,27 +83,17 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
                     style={styles.input}
                 />
 
-                <div style={{ textAlign: 'right', marginBottom: '15px' }}>
-    <span
-        onClick={onForgotPasswordClick}
-        style={{
-            color: '#007bff',
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            textDecoration: 'underline',
-            fontFamily: 'Arial, sans-serif',
-            fontWeight: 'bold'
-        }}
-    >
-        Forgot Password?
-    </span>
+                <div style={{ textAlign: 'right', marginBottom: '25px', width: '100%' }}>
+                    <span onClick={onForgotPasswordClick} style={styles.forgotText}>
+                        Forgot Password?
+                    </span>
                 </div>
 
-                <button onClick={handleLogin} style={styles.button}>
+                <button onClick={handleLogin} style={styles.primaryButton}>
                     Log In
                 </button>
 
-                <button onClick={onSignupClick} style={{ ...styles.secondaryButton, marginTop: '10px' }}>
+                <button onClick={onSignupClick} style={styles.secondaryButton}>
                     Create New Account
                 </button>
 
@@ -121,48 +105,58 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
     )
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     pageContainer: {
-        position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
         display: 'flex', justifyContent: 'center', alignItems: 'center',
-        background: '#f0f2f5', fontFamily: '"BBH Hegarty", Arial, sans-serif',
+        background: '#000', fontFamily: '"BBH Hegarty", "Inter", Arial, sans-serif',
         overflow: 'hidden'
     },
-    cityImage: {
-        position: 'absolute' as const,
-        bottom: 0,
-        left: 0,
-        width: '100vw',
-        height: '50vh',
-        objectFit: 'cover' as const,
-        objectPosition: 'bottom',
-        zIndex: 0,
-        opacity: 0.87,
-        pointerEvents: 'none' as const
+    bgContainer: {
+        position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0
+    },
+    bgImage: {
+        width: '100%', height: '100%', objectFit: 'cover'
+    },
+    overlay: {
+        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%)'
     },
     card: {
-        position: 'relative' as const, background: 'white', padding: '40px',
-        borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-        width: '500px', height: '500px', display: 'flex', flexDirection: 'column' as const,
-        justifyContent: 'center', textAlign: 'center' as const,
-        zIndex: 10
+        position: 'relative',
+        background: 'rgba(255, 255, 255, 0.85)', // Glassmorphism
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        padding: '50px 40px',
+        borderRadius: '16px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+        border: '1px solid rgba(255,255,255,0.4)',
+        width: '420px',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', textAlign: 'center', zIndex: 10
     },
-    title: { margin: '0 0 10px 0', color: '#333' },
-    subtitle: { margin: '0 0 30px 0', color: '#666', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold' },
+    title: { margin: '0 0 8px 0', color: '#111', fontWeight: 600, fontSize: '2rem' },
+    subtitle: { margin: '0 0 35px 0', color: '#555', fontSize: '0.95rem', letterSpacing: '0.5px' },
     errorText: {
-        color: '#ff4d4f', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold',
-        position: 'absolute' as const, bottom: '20px', left: 0, right: 0, textAlign: 'center' as const, zIndex: 10
+        color: '#ff3b30', fontSize: '0.85rem', fontWeight: 500,
+        position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center'
     },
     input: {
-        width: '100%', padding: '12px', marginBottom: '8px', borderRadius: '6px',
-        border: '1px solid #ddd', boxSizing: 'border-box' as const, fontSize: '1rem', fontFamily: 'Arial, sans-serif'
+        width: '100%', padding: '15px 16px', marginBottom: '15px', borderRadius: '8px',
+        border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.6)',
+        boxSizing: 'border-box', fontSize: '1rem', outline: 'none', transition: 'all 0.3s ease'
     },
-    button: {
-        width: '100%', padding: '12px', background: '#007bff', color: 'white',
-        border: 'none', borderRadius: '6px', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Arial, sans-serif'
+    forgotText: {
+        color: '#444', fontSize: '0.85rem', cursor: 'pointer', transition: 'color 0.2s', fontWeight: 500
+    },
+    primaryButton: {
+        width: '100%', padding: '15px', background: '#111', color: '#fff',
+        border: 'none', borderRadius: '8px', fontSize: '0.95rem', cursor: 'pointer',
+        fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', transition: 'background 0.3s ease'
     },
     secondaryButton: {
-        width: '100%', padding: '12px', background: 'transparent', color: '#007bff',
-        border: '1px solid #007bff', borderRadius: '6px', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Arial, sans-serif'
+        width: '100%', padding: '15px', background: 'transparent', color: '#111',
+        border: '1px solid #111', borderRadius: '8px', fontSize: '0.95rem', cursor: 'pointer',
+        fontWeight: 600, letterSpacing: '0.5px', marginTop: '15px', transition: 'all 0.3s ease'
     }
 }

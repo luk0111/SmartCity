@@ -13,20 +13,19 @@ export default function Signup({ onBackToLogin }: SignupProps) {
     const [gender, setGender] = useState('Male')
     const [error, setError] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
-
     const [isLoading, setIsLoading] = useState(false)
 
     const fadeIn = useSpring({
-        from: { opacity: 0, transform: 'translateY(50px)' },
+        from: { opacity: 0, transform: 'translateY(40px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
-        config: { tension: 50, friction: 15 },
-        delay: 200
+        config: { mass: 1, tension: 90, friction: 30 },
+        delay: 300
     })
 
-    const skyDrop = useSpring({
-        from: { transform: 'translateY(-100%)' },
-        to: { transform: 'translateY(0%)' },
-        config: { tension: 30, friction: 20 },
+    const bgReveal = useSpring({
+        from: { opacity: 0, transform: 'scale(1.05)' },
+        to: { opacity: 1, transform: 'scale(1)' },
+        config: { mass: 1, tension: 50, friction: 40 },
         delay: 100
     })
 
@@ -34,24 +33,19 @@ export default function Signup({ onBackToLogin }: SignupProps) {
         from: { opacity: 0, transform: 'translateY(10px)' },
         enter: { opacity: 1, transform: 'translateY(0px)' },
         leave: { opacity: 0 },
-        config: { tension: 220, friction: 20 }
+        config: { tension: 200, friction: 20 }
     })
 
     const handleSignup = async (e: React.MouseEvent) => {
-
         e.preventDefault()
-
-        setError('')
-        setSuccessMsg('')
+        setError(''); setSuccessMsg('')
 
         if (!username || !password || !email) {
             setError("Please fill in all fields")
             return
         }
 
-
         setIsLoading(true)
-
         try {
             const response = await fetch('http://26.133.65.127:8080/api/auth/signup', {
                 method: 'POST',
@@ -67,25 +61,22 @@ export default function Signup({ onBackToLogin }: SignupProps) {
                 setError(result)
             }
         } catch (err) {
-            console.error("Signup Error:", err)
             setError("Connection Failed - Check Backend Console")
         } finally {
-
             setIsLoading(false)
         }
     }
 
     return (
         <div style={styles.pageContainer}>
-            <animated.img
-                src={signupImage}
-                style={{ ...styles.bgImage, ...skyDrop }}
-                alt="Sky Background"
-            />
+            <animated.div style={{ ...styles.bgContainer, ...bgReveal }}>
+                <img src={signupImage} style={styles.bgImage} alt="Background" />
+                <div style={styles.overlay} />
+            </animated.div>
 
             <animated.div style={{ ...styles.card, ...fadeIn }}>
                 <h1 style={styles.title}>Join SmartCity</h1>
-                <p style={styles.subtitle}>Create your new account</p>
+                <p style={styles.subtitle}>Create your modern account</p>
 
                 <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} style={styles.input} />
                 <input type="email" placeholder="Email Address" onChange={(e) => setEmail(e.target.value)} style={styles.input} />
@@ -96,20 +87,20 @@ export default function Signup({ onBackToLogin }: SignupProps) {
                 </select>
                 <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} style={styles.input} />
 
-
                 <button
                     onClick={handleSignup}
-                    disabled={isLoading} // Can't click twice
+                    disabled={isLoading}
                     style={{
-                        ...styles.button,
-                        background: isLoading ? '#ccc' : '#28a745', // Turn grey if loading
-                        cursor: isLoading ? 'not-allowed' : 'pointer'
+                        ...styles.primaryButton,
+                        background: isLoading ? '#666' : '#111',
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                        marginTop: '10px'
                     }}
                 >
-                    {isLoading ? "Creating Account..." : "Register Account"}
+                    {isLoading ? "CREATING..." : "REGISTER"}
                 </button>
 
-                <button onClick={onBackToLogin} style={{ ...styles.secondaryButton, marginTop: '10px' }}>Back to Login</button>
+                <button onClick={onBackToLogin} style={styles.secondaryButton}>Back to Login</button>
 
                 {errorTransitions((style, item) => item ? <animated.p style={{ ...styles.errorText, ...style }}>{item}</animated.p> : null)}
                 {successMsg && <p style={styles.successText}>{successMsg}</p>}
@@ -118,47 +109,44 @@ export default function Signup({ onBackToLogin }: SignupProps) {
     )
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     pageContainer: {
-        position: 'fixed' as const, top: 0, left: 0, width: '100vw', height: '100vh',
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
         display: 'flex', justifyContent: 'center', alignItems: 'center',
-        background: '#f0f2f5', fontFamily: '"BBH Hegarty", Arial, sans-serif',
-        overflow: 'hidden'
+        background: '#000', fontFamily: '"BBH Hegarty", "Inter", Arial, sans-serif', overflow: 'hidden'
     },
-    bgImage: {
-        position: 'absolute' as const, top: 0, left: 0, width: '100vw', height: '50vh',
-        objectFit: 'cover' as const, objectPosition: 'top', zIndex: 0, opacity: 0.87, pointerEvents: 'none' as const
+    bgContainer: { position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 },
+    bgImage: { width: '100%', height: '100%', objectFit: 'cover' },
+    overlay: {
+        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%)'
     },
     card: {
-        position: 'relative' as const, background: 'white', padding: '40px',
-        borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-        width: '500px', height: '550px', display: 'flex', flexDirection: 'column' as const,
-        justifyContent: 'center', textAlign: 'center' as const, zIndex: 10
+        position: 'relative', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)', padding: '50px 40px', borderRadius: '16px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.4)',
+        width: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', zIndex: 10
     },
-    title: { margin: '0 0 10px 0', color: '#333' },
-    subtitle: { margin: '0 0 30px 0', color: '#666', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold' },
-    errorText: {
-        color: '#ff4d4f', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold',
-        position: 'absolute' as const, bottom: '60px', left: 0, right: 0, textAlign: 'center' as const, zIndex: 10
-    },
-    successText: {
-        color: '#28a745', fontSize: '0.9rem', fontFamily: 'Arial, sans-serif', fontWeight: 'bold',
-        position: 'absolute' as const, bottom: '20px', left: 0, right: 0, textAlign: 'center' as const, zIndex: 10
-    },
+    title: { margin: '0 0 8px 0', color: '#111', fontWeight: 600, fontSize: '2rem' },
+    subtitle: { margin: '0 0 35px 0', color: '#555', fontSize: '0.95rem', letterSpacing: '0.5px' },
+    errorText: { color: '#ff3b30', fontSize: '0.85rem', fontWeight: 500, position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center' },
+    successText: { color: '#34c759', fontSize: '0.85rem', fontWeight: 500, position: 'absolute', bottom: '15px', left: 0, right: 0, textAlign: 'center' },
     input: {
-        width: '100%', padding: '12px', marginBottom: '8px', borderRadius: '6px',
-        border: '1px solid #ddd', boxSizing: 'border-box' as const, fontSize: '1rem', fontFamily: 'Arial, sans-serif'
+        width: '100%', padding: '15px 16px', marginBottom: '15px', borderRadius: '8px',
+        border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.6)',
+        boxSizing: 'border-box', fontSize: '1rem', outline: 'none'
     },
     select: {
-        width: '100%', padding: '12px', marginBottom: '8px', borderRadius: '6px',
-        border: '1px solid #ddd', boxSizing: 'border-box' as const, fontSize: '1rem', fontFamily: 'Arial, sans-serif', cursor: 'pointer',  color: "#666"
+        width: '100%', padding: '15px 16px', marginBottom: '15px', borderRadius: '8px',
+        border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.6)', color: '#444',
+        boxSizing: 'border-box', fontSize: '1rem', outline: 'none', cursor: 'pointer'
     },
-    button: {
-        width: '100%', padding: '12px', background: '#28a745', color: 'white',
-        border: 'none', borderRadius: '6px', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Arial, sans-serif'
+    primaryButton: {
+        width: '100%', padding: '15px', color: '#fff', border: 'none', borderRadius: '8px',
+        fontSize: '0.95rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', transition: 'background 0.3s ease'
     },
     secondaryButton: {
-        width: '100%', padding: '12px', background: 'transparent', color: '#666',
-        border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Arial, sans-serif'
+        width: '100%', padding: '15px', background: 'transparent', color: '#111', border: '1px solid #111',
+        borderRadius: '8px', fontSize: '0.95rem', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.5px', marginTop: '15px'
     }
 }
