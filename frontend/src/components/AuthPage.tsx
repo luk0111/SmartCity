@@ -14,7 +14,6 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
 
-    // Smoother, "floaty" animation (no bounce)
     const fadeIn = useSpring({
         from: { opacity: 0, transform: 'translateY(40px)' },
         to: { opacity: 1, transform: 'translateY(0px)' },
@@ -36,7 +35,8 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
         config: { tension: 200, friction: 20 }
     })
 
-    const handleLogin = async () => {
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
         setError('')
         try {
             const response = await fetch('http://26.133.65.127:8080/api/auth/login', {
@@ -66,7 +66,8 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
                 <div style={styles.overlay} />
             </animated.div>
 
-            <animated.div style={{ ...styles.card, ...fadeIn }}>
+            {/* Changed from animated.div to animated.form and added onSubmit */}
+            <animated.form onSubmit={handleLogin} style={{ ...styles.card, ...fadeIn }}>
                 <h1 style={styles.title}>Welcome Back</h1>
                 <p style={styles.subtitle}>SmartCity Control Panel</p>
 
@@ -84,23 +85,26 @@ export default function AuthPage({ onLoginSuccess, onSignupClick, onForgotPasswo
                 />
 
                 <div style={{ textAlign: 'right', marginBottom: '25px', width: '100%' }}>
-                    <span onClick={onForgotPasswordClick} style={styles.forgotText}>
+                    {/* Changed span to a div, or added type="button" to avoid form submission */}
+                    <button type="button" onClick={onForgotPasswordClick} style={styles.forgotTextButton}>
                         Forgot Password?
-                    </span>
+                    </button>
                 </div>
 
-                <button onClick={handleLogin} style={styles.primaryButton}>
+                {/* Changed type to submit and removed onClick */}
+                <button type="submit" style={styles.primaryButton}>
                     Log In
                 </button>
 
-                <button onClick={onSignupClick} style={styles.secondaryButton}>
+                {/* Added type="button" so this doesn't accidentally trigger a login */}
+                <button type="button" onClick={onSignupClick} style={styles.secondaryButton}>
                     Create New Account
                 </button>
 
                 {errorTransitions((style, item) =>
                     item ? <animated.p style={{ ...styles.errorText, ...style }}>{item}</animated.p> : null
                 )}
-            </animated.div>
+            </animated.form>
         </div>
     )
 }
@@ -124,7 +128,7 @@ const styles: Record<string, React.CSSProperties> = {
     },
     card: {
         position: 'relative',
-        background: 'rgba(255, 255, 255, 0.85)', // Glassmorphism
+        background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         padding: '50px 40px',
@@ -147,8 +151,10 @@ const styles: Record<string, React.CSSProperties> = {
         border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.6)',
         boxSizing: 'border-box', fontSize: '1rem', outline: 'none', transition: 'all 0.3s ease'
     },
-    forgotText: {
-        color: '#444', fontSize: '0.85rem', cursor: 'pointer', transition: 'color 0.2s', fontWeight: 500
+    forgotTextButton: {
+        background: 'none', border: 'none', padding: 0, color: '#444',
+        fontSize: '0.85rem', cursor: 'pointer', transition: 'color 0.2s', fontWeight: 500,
+        fontFamily: 'inherit'
     },
     primaryButton: {
         width: '100%', padding: '15px', background: '#111', color: '#fff',
