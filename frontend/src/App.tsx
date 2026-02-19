@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { animated, useTransition } from "@react-spring/web"
 import AuthPage from './components/AuthPage'
 import SignUp from './components/Signup'
 import MainMenu from './components/MainMenu'
@@ -16,7 +17,7 @@ type PageState = 'login' | 'signup' | 'menu' | 'verify' | 'forgot-password' | 'r
 function App() {
     const [currentPage, setCurrentPage] = useState<PageState>('login')
     const [verificationCode, setVerificationCode] = useState<string | null>(null)
-    const [resetToken, setResetToken] = useState<string | null>(null) // State for the reset token
+    const [resetToken, setResetToken] = useState<string | null>(null)
     const [currentUser, setCurrentUser] = useState<UserData | null>(null)
 
     useEffect(() => {
@@ -62,45 +63,56 @@ function App() {
         setCurrentPage('login')
     }
 
+    const transitions = useTransition(currentPage, {
+        from: { opacity: 0, transform: 'scale(1.05)', filter: 'blur(10px)' },
+        enter: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
+        leave: { opacity: 0, transform: 'scale(0.95)', filter: 'blur(10px)' },
+        config: { tension: 280, friction: 30 },
+    })
+
     return (
-        <div>
-            {currentPage === 'login' && (
-                <AuthPage
-                    onLoginSuccess={handleLoginSuccess}
-                    onSignupClick={() => setCurrentPage('signup')}
-                    onForgotPasswordClick={() => setCurrentPage('forgot-password')} // Wire up the new button
-                />
-            )}
+        <div style={{ display: 'grid', backgroundColor: '#000', minHeight: '100vh', overflowX: 'hidden' }}>
+            {transitions((style, item) => (
+                <animated.div style={{ ...style, gridArea: '1 / 1', width: '100%', minHeight: '100vh' }}>
 
-            {currentPage === 'signup' && (
-                <SignUp
-                    onBackToLogin={() => setCurrentPage('login')}
-                />
-            )}
+                    {item === 'login' && (
+                        <AuthPage
+                            onLoginSuccess={handleLoginSuccess}
+                            onSignupClick={() => setCurrentPage('signup')}
+                            onForgotPasswordClick={() => setCurrentPage('forgot-password')}
+                        />
+                    )}
 
-            {currentPage === 'verify' && (
-                <VerificationPage
-                    code={verificationCode}
-                    onVerificationComplete={handleVerificationComplete}
-                />
-            )}
+                    {item === 'signup' && (
+                        <SignUp onBackToLogin={() => setCurrentPage('login')} />
+                    )}
 
-            {currentPage === 'forgot-password' && (
-                <ForgotPassword
-                    onBackToLogin={() => setCurrentPage('login')}
-                />
-            )}
+                    {item === 'verify' && (
+                        <VerificationPage
+                            code={verificationCode}
+                            onVerificationComplete={handleVerificationComplete}
+                        />
+                    )}
 
-            {currentPage === 'reset-password' && (
-                <ResetPassword
-                    token={resetToken}
-                    onResetComplete={handleResetComplete}
-                />
-            )}
+                    {item === 'forgot-password' && (
+                        <ForgotPassword
+                            onBackToLogin={() => setCurrentPage('login')}
+                        />
+                    )}
 
-            {currentPage === 'menu' && currentUser && (
-                <MainMenu user={currentUser} onLogout={handleLogout} />
-            )}
+                    {item === 'reset-password' && (
+                        <ResetPassword
+                            token={resetToken}
+                            onResetComplete={handleResetComplete}
+                        />
+                    )}
+
+                    {item === 'menu' && currentUser && (
+                        <MainMenu user={currentUser} onLogout={handleLogout} />
+                    )}
+
+                </animated.div>
+            ))}
         </div>
     )
 }
