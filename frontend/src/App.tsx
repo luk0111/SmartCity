@@ -71,7 +71,14 @@ function App() {
     })
 
     return (
-        <div style={{ display: 'grid', backgroundColor: '#000', minHeight: '100vh', overflowX: 'hidden' }}>
+        <div style={{
+            display: 'grid',
+            backgroundColor: '#000',
+            minHeight: '100vh',
+            height: '100vh', // Added explicit height
+            width: '100vw',  // Added explicit width
+            overflowX: 'hidden'
+        }}>
             {transitions((style, item) => (
                 <animated.div style={{ ...style, gridArea: '1 / 1', width: '100%', minHeight: '100vh' }}>
 
